@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the newsfetcher feature.
+ */
+
+include_once 'newsfetcher.features.inc';

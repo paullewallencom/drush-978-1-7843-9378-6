@@ -1,0 +1,46 @@
+<?php
+/**
+ * @file
+ *
+ * Install hook implementations for module mymodule.
+ *
+ * Note that the following hooks won't run when you install the
+ * module. If you want to test them. Comment them out, install
+ * the module and then run database updates.
+ */
+
+/**
+ * Dummy database update.
+ */
+function mymodule_update_7100(&$sandbox) {
+  // This database update failed so we have moved the code
+  // to the next database update with a few adjustments.
+}
+
+/**
+ * Set default value of 0 for field_flag on existing content.
+ */
+function mymodule_update_7101(&$sandbox) {
+  // Import field Flag into the database.
+  $items['mymodule'] = array('field_base', 'field_instance');
+  features_revert($items);
+
+  // Make sure that the field Flag has been installed.
+  if (empty(field_info_instance('node', 'field_flag', 'page'))) {
+    $t_args = array('@function' => __FUNCTION__);
+    throw new DrupalUpdateException(t('Field flag was not found in update @function.', $t_args));
+  }
+
+  // Load up all Basic Page nodes.
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'page');
+  $results = $query->execute();
+
+  // Loop over each Page node and set field_flag to 0.
+  foreach (node_load_multiple(array_keys($results['node'])) as $node) {
+    $node->field_flag[LANGUAGE_NONE][0]['value'] = 0;
+    node_save($node);
+  }
+}
+
